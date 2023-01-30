@@ -1,28 +1,4 @@
-import { readFileSync } from 'fs';
-import path from 'path';
-
-
-interface PostOffice {
-    code: string;
-    name: string;
-}
-
-function readPostOffices(): PostOffice[] {
-    // you can generate the relative path to the CSV that is in the parent folder of this file:
-    const csvFile: string = path.join(__dirname, '..', 'postalcodes.csv');
-
-    // file can be read into a string with the `readFileSync` function:
-    let fileContents: string = readFileSync(csvFile, 'utf-8');
-
-    // the string can be split into lines with `split`:
-    let lines: string[] = fileContents.trim().split(/\r?\n/);
-
-    // make an array of PostOffice objects and return it
-    return lines.map(line => {
-        let [code, name] = line.split(',');
-        return { code, name };
-    });
-}
+import { readPostOffices } from './postalFileReader';
 
 // https://stackoverflow.com/a/24457420
 function isNumeric(value: string) {
@@ -36,13 +12,14 @@ let input = params.at(-1)!;
 let postOffices = readPostOffices();
 
 if (isNumeric(input)) {
-    /* kertoo postitoimipaikan nimen, kun sille annetaan parametrina postinumero */
-    let found = postOffices.find(office => office.code === input);
-    console.log(found?.name);
+    if (input in postOffices) {
+        console.log(postOffices[input].postcode_fi_name);
+    } else {
+        console.log(`Postal code ${input} not found`);
+    }
 } else {
-    /* listaa kaikki annettuun nimeen liittyvät postinumerot samalla rivillä kasvavassa järjestyksessä */
-    let matches = postOffices.filter(office => office.name.toLowerCase() === input.toLowerCase());
-    let codes: string[] = matches.map(office => office.code);
+    let matches = Object.values(postOffices).filter(office => office.postcode_fi_name.toUpperCase() === input.toUpperCase());
+    let codes = matches.map(office => office.postcode);
     codes.sort();
     console.log(codes.join(', '));
 }
