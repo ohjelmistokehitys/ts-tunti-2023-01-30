@@ -11,12 +11,14 @@ let fileContents: string = readFileSync(csvFile, 'utf-8');
 // the string can be split into lines with `split`:
 let lines: string[] = fileContents.trim().split(/\r?\n/);
 
-console.log('The first 5 lines read from CSV file:');
-console.table(lines.slice(0, 5));
-
-
 // you can access command line arguments via `process.argv` variable:
 let params: string[] = process.argv;
+let input = params.at(-1)!.toUpperCase();
 
-console.log('The contents of the `process.argv` array:');
-console.table(params);
+for (let line of lines) {
+    let parts = line.split(',');
+
+    if (parts[0] === input) {
+        console.log(parts[1]);
+    }
+}
